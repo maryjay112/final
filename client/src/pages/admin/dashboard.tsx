@@ -272,7 +272,7 @@ export default function AdminDashboard() {
                         Add Program
                       </Button>
                     </DialogTrigger>
-                    <DialogContent className="max-w-2xl">
+                    <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
                       <DialogHeader>
                         <DialogTitle>Add New Program</DialogTitle>
                       </DialogHeader>
@@ -329,7 +329,7 @@ export default function AdminDashboard() {
                         Add Article
                       </Button>
                     </DialogTrigger>
-                    <DialogContent className="max-w-2xl">
+                    <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
                       <DialogHeader>
                         <DialogTitle>Add News Article</DialogTitle>
                       </DialogHeader>
@@ -386,7 +386,7 @@ export default function AdminDashboard() {
                         Create Event
                       </Button>
                     </DialogTrigger>
-                    <DialogContent className="max-w-2xl">
+                    <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
                       <DialogHeader>
                         <DialogTitle>Create New Event</DialogTitle>
                       </DialogHeader>
@@ -445,7 +445,7 @@ export default function AdminDashboard() {
                         Add Member
                       </Button>
                     </DialogTrigger>
-                    <DialogContent className="max-w-2xl">
+                    <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
                       <DialogHeader>
                         <DialogTitle>Add Team Member</DialogTitle>
                       </DialogHeader>
