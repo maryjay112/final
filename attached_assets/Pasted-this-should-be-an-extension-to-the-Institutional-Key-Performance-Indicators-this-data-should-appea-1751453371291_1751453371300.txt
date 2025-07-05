@@ -1,6 +1,6 @@
 this should be an extension to the  Institutional Key Performance Indicators, this data should appear in a neww page .
 There should be a A Admin dashboard with login credentials . the Admin dashboard would be used to modify , delete , insert information that will appear in the front end of the website like the program section, the management section, the news section, the event section etc.
-Maintain the current website structure and appearance , dont tinker with the current look and feel but include a thumb nail for scrolling up the website . also maintain the neon database login credentials .
+Maintain the current website structure and appearance , dont tinker with the current look and feel  but maintain the neon database login credentials .
 turning the existing frontend + Express backend into a custom, full-featured content management system (CMS) for The federal polytechnic Ede. This  includes:
 
 Rendering live content from a database  
@@ -23,37 +23,4 @@ Once PostgresStorage is wired in:
 ✅ Eventually edit/update/delete right from the Admin UI
 
 🔐 Add login/auth to protect admin routes
-Annual Budget
-₦4,885,097,588.81
-Student Population
-19,910
-TETFUND Allocation
-₦1,844,505,731.71
-Annual Budgetary Allocation (Year 2025)
-Category	Amount (₦)
- Personnel Cost	3,509,610,687.00
- Overhead Cost	372,000,000.00
- Capital Expenditure	1,003,486,901.81
- TOTAL	4,885,097,588.81
-TETFUND Allocation (Current Year 2025)
-S/N	Intervention Line	Allocation Amount (₦)
-1	TETFund (Training)	150,000,000.00
-2	Physical Infrastructure/Program Upgrade	850,000,000.00
-3	Library Development	130,000,000.00
-4	Equipment Fabrication	64,355,731.71
-5	Zonal Intervention	200,000,000.00
-6	Career Service Centre	80,000,000.00
-7	TETFUND Project Maintenance	150,000.00
-8	Academic Main	15,000,000.00
-9	Instruction Based Skills Development	100,000,000.00
-10	Institution Based Research	60,000,000.00
-11	ICT Support	120,000,000.00
-12	Academic Research Journal	15,000,000.00
-13	Conference Attendance	60,000,000.00
- TOTAL	1,844,505,731.71
-Total Student Population
-National Diploma (ND)
-13,564
-Higher National Diploma
-6,346
- Data last updated: May 30, 2025 | Source: Federal Polytechnic Ede
+ 
