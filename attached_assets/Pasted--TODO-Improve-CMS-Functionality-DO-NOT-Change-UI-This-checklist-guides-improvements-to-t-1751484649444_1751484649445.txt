@@ -1,177 +1,178 @@
+TODO Instructions for Replit Agent
 
-# 📋 TODO: Improve CMS Functionality (DO NOT Change UI)
+Important: Do not alter the visual layout or design. All UI/UX elements must remain intact. Only fix functionality and apply improvements as listed below.
 
-This checklist guides improvements to the Content Management System (CMS) for Federal Polytechnic Ede. You may refactor logic and backend code, but DO NOT change the site’s design, structure, layout, or styling.
+⚠️ General Note
 
----
+Maintain existing UI structure.
 
-## 🛡 1. Authentication & Security
-- [ ] Add middleware to protect admin routes (JWT or session-based)
-- [ ] Add basic rate limiting to login and sensitive endpoints
-- [ ] Sanitize and validate user inputs on backend
+Do not redesign or reposition components.
 
----
+Ensure mobile responsiveness remains unaffected.
 
-## 📦 2. Full CRUD API Support
-Create RESTful endpoints with proper status responses for:
+🧭 Frontend KPI Section
 
-- [ ] Programs (GET, POST, PUT/PATCH, DELETE)
-- [ ] News Articles (GET, POST, PUT/PATCH, DELETE)
-- [ ] Events (GET, POST, PUT/PATCH, DELETE)
-- [ ] Management Members (GET, POST, PUT/PATCH, DELETE)
+Add Institution Data Link
 
----
+After the KPI metrics (on the frontend, not admin):
 
-## 🧠 3. Frontend Code Quality
-- [ ] Add TypeScript interfaces for all entities (`Program`, `Event`, `News`, etc.)
-- [ ] Provide proper `queryFn` in all `useQuery` hooks
-- [ ] Add `isLoading` and `error` states in all data queries
-- [ ] Use `queryClient.invalidateQueries()` after successful create/update/delete
+Add this message:
 
----
+"Click below to view detailed information about the institution."
 
-## 🔁 4. Functional Improvements
-- [ ] Reuse `AddContentForms` for both adding and editing content
-- [ ] Pre-fill form fields in edit mode
-- [ ] Add `confirm()` before deletion for safety
+Add a button:
 
----
+Label: View Institution Data
 
-## 🗂 5. Project Structure & Reusability
-- [ ] Break `AdminDashboard.tsx` into smaller components:
-  - `Tabs/Overview.tsx`
-  - `Tabs/Programs.tsx`
-  - `Tabs/News.tsx`
-  - etc.
-- [ ] Create reusable components:
-  - `ContentCard` (for each listed item)
-  - `EntityActions` (edit/delete buttons)
-  - `EmptyState` (for "no items found" message)
+Link to: /institution-data
 
----
+🏛️ Update Header Logo
 
-## ⚙ 6. Configuration & Env Management
-- [ ] Move hardcoded URLs/tokens to `.env` (e.g. `VITE_API_URL`)
-- [ ] Use Replit secrets for sensitive data like tokens, database URLs, etc.
+Replace the icon image in the site header with the Federal Polytechnic Ede logo.
 
----
+Keep existing size and positioning.
 
-## 🧪 7. Optional Enhancements (If Time Permits)
-- [ ] Add pagination or filters to long lists (e.g. `programs`)
-- [ ] Add search functionality (simple keyword filter)
-- [ ] Add role-based access control (e.g. only superadmin can delete)
-- [ ] Prepare a public API endpoint (e.g. `/api/public/programs`) for mobile integration
+Ensure compatibility with mobile view.
 
----
+🛠️ Admin Dashboard CRUD Fixes
 
-## ❗ Do Not:
-- ❌ Change visual styles or structure
-- ❌ Modify component layouts or UI components
-- ❌ Replace icons, tabs, or button designs
+Ensure the Edit and Delete buttons work for all of the following:
 
----
+Section
 
-📩 If you’re unsure about any instruction, leave a comment in the code or use a `// TODO:` marker to raise questions for review.
+Fix Required
 
-✅ FEDERAL POLYTECHNIC EDE WEBSITE – PROJECT TODO DOCUMENT
-⚙️ GENERAL INSTRUCTION:
-Maintain existing UI and visual structure.
+Academic Programs
 
-Use ShadCN components and follow the Tailwind layout already used.
+Edit & Delete working
 
-Do not alter layout or component organization.
+News Articles
 
-Use Wouter routing where necessary (e.g., useLocation() for navigation).
+Edit & Delete working
 
-1. ✅ Create "About" Page (/about)
-Navigation:
+Events
 
-Add "About" link to header and footer
+Edit & Delete working
 
-Content Sections:
+Management Team
 
-History – Summary of the institution's background
+Edit & Delete working
 
-Philosophy – The values that guide the polytechnic
+Edit: Opens form with existing data pre-filled.
 
-Objectives – Key goals of the institution
+Delete: Confirms and removes entry from database and UI.
 
-Mission – Clear mission statement
+📰 Add News Article Form Fix
 
-Vision – Long-term vision for the institution
+Ensure form buttons (Submit, Cancel) are visible.
 
-UI:
+Fix any layout overflow or visibility issues.
 
-Use consistent card or section components
+JSON Error Fix:
 
-Structure content vertically or with Tabs if necessary
+Unexpected token < in JSON... DOCTYPE
 
-2. ✅ Create "Application Form" Page (/application-form)
-Navigation:
+Cause: Server returns HTML error instead of JSON.
 
-Add "Application Form" link to header and footer
+Fix: Ensure /api/news returns valid JSON on success or failure.
 
-Content:
+📅 Add Event Feature Fix
 
-Display available application types with titles and fees:
+Currently no form is visible.
 
-ND FT – Full Time → ₦15,000
+Provide full event creation form with:
 
-ND PT – Evening Class → ₦15,000
+Title
 
-ND PT – Weekend Class → ₦15,000
+Date
 
-HND FT – Full Time
+Time
 
-Apply Buttons:
+Location
 
-Each program should have a styled button labeled "Apply Now"
+Category
 
-All buttons should link to the official portal:
-https://eportal.federalpolyede.edu.ng/apply/login.php
+Description
 
-UI Suggestion:
+Also add edit and delete functionality for events.
 
-Use cards or grid layout
+👥 Add Management Team Member Fix
 
-Each card = 1 program with title, fee, and button
+Same issue as event: no form showing.
 
-3. ✅ Add TETFUND Page (/tetfund)
-Navigation:
+Provide a form with:
 
-Add "TETFUND" link to header and footer
+Name
 
-Content:
+Position
 
-Placeholder content describing TETFUND's role
+Image (URL or upload)
 
-Can be static for now; optionally editable later
+Short Bio
 
-4. ✅ Add New Menu: “Research”
-Navigation:
+Enable edit and delete as well.
 
-Add new top-level menu item: Research
+📄 Application Form Page
 
-Dropdown or Sub-items:
+In the /application-form page:
 
-Conference Website → [Insert actual link when available]
+For each program (ND FT, ND PT Evening, ND PT Weekend, HND FT):
 
-Journal Website → [Insert actual link when available]
+Display name, mode, fee (₦15,000 where applicable)
 
-These links should open in a new tab (target="_blank")
+Include “Apply Now” button
 
-5. ✅ Optional Enhancements (on request)
-If desired later, the following can be added:
+Link: https://eportal.federalpolyede.edu.ng/apply/login.php
 
-Make "About", "TETFUND", and "Application Form" pages editable from the admin dashboard
+🎥 Virtual Campus Tours Video Playback
 
-Enable download of Application PDFs (optional)
+Videos are not playing when clicked.
 
-Add analytics tracking for external link clicks (via simple logging or integration)
+Fixes:
 
-✅ Files/Pages to Create:
-Page	Route	Purpose
-about.tsx	/about	About the Institution
-application-form.tsx	/application-form	List of Application Options
-tetfund.tsx	/tetfund	Info about TETFUND projects
-also the institutional data ,tsx should have a button at the main page just after the KPI  that can be clicked and it opens 
+Ensure <video> tag or embedded player is properly set.
+
+Add controls if missing.
+
+Check for broken or blocked links (CORS or wrong source).
+
+Test playback across browsers.
+
+✅ Summary Checklist
+
+Feature
+
+Fix Status
+
+Frontend KPI Section
+
+Add link to /institution-data
+
+Site Header
+
+Replace icon with FPE logo
+
+Admin Dashboard CRUD
+
+Fix Edit/Delete across board
+
+News Form
+
+Fix visibility & JSON error
+
+Event Form
+
+Add form + CRUD
+
+Management Form
+
+Add form + CRUD
+
+Application Form
+
+Add program apply buttons
+
+Virtual Tour Videos
+
+Fix playback
+
