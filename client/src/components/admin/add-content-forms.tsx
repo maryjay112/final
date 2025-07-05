@@ -73,10 +73,7 @@ export default function AddContentForms({ type, onClose }: AddContentFormsProps)
   const mutation = useMutation({
     mutationFn: async (data: FormData) => {
       const endpoint = `/api/${type === 'management' ? 'management' : type + 's'}`;
-      return apiRequest(endpoint, {
-        method: 'POST',
-        body: JSON.stringify(data),
-      });
+      return apiRequest('POST', endpoint, data);
     },
     onSuccess: () => {
       toast({
@@ -235,14 +232,14 @@ export default function AddContentForms({ type, onClose }: AddContentFormsProps)
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor="imageUrl">Image URL</Label>
+        <Label htmlFor="image">Image URL</Label>
         <Input
-          id="imageUrl"
+          id="image"
           placeholder="https://example.com/image.jpg"
-          {...form.register('imageUrl')}
+          {...form.register('image')}
         />
-        {getErrorMessage('imageUrl') && (
-          <p className="text-sm text-red-600">{getErrorMessage('imageUrl')}</p>
+        {getErrorMessage('image') && (
+          <p className="text-sm text-red-600">{getErrorMessage('image')}</p>
         )}
       </div>
 

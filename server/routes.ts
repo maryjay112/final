@@ -1,7 +1,7 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
-import { insertContactSchema, insertEventSchema, insertManagementSchema } from "@shared/schema";
+import { insertContactSchema, insertEventSchema, insertManagementSchema, insertNewsSchema } from "@shared/schema";
 import { z } from "zod";
 
 export async function registerRoutes(app: Express): Promise<Server> {
@@ -101,10 +101,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.post("/api/news", async (req, res) => {
     try {
-      const newsItem = await storage.createNews(req.body);
+      const newsData = insertNewsSchema.parse(req.body);
+      const newsItem = await storage.createNews(newsData);
       res.status(201).json(newsItem);
     } catch (error) {
-      res.status(500).json({ message: "Failed to create news article" });
+      if (error instanceof z.ZodError) {
+        res.status(400).json({ message: "Invalid news data", errors: error.errors });
+      } else {
+        console.error("Failed to create news:", error);
+        res.status(500).json({ message: "Failed to create news article" });
+      }
     }
   });
 
