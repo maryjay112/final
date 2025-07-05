@@ -1,0 +1,177 @@
+
+# 📋 TODO: Improve CMS Functionality (DO NOT Change UI)
+
+This checklist guides improvements to the Content Management System (CMS) for Federal Polytechnic Ede. You may refactor logic and backend code, but DO NOT change the site’s design, structure, layout, or styling.
+
+---
+
+## 🛡 1. Authentication & Security
+- [ ] Add middleware to protect admin routes (JWT or session-based)
+- [ ] Add basic rate limiting to login and sensitive endpoints
+- [ ] Sanitize and validate user inputs on backend
+
+---
+
+## 📦 2. Full CRUD API Support
+Create RESTful endpoints with proper status responses for:
+
+- [ ] Programs (GET, POST, PUT/PATCH, DELETE)
+- [ ] News Articles (GET, POST, PUT/PATCH, DELETE)
+- [ ] Events (GET, POST, PUT/PATCH, DELETE)
+- [ ] Management Members (GET, POST, PUT/PATCH, DELETE)
+
+---
+
+## 🧠 3. Frontend Code Quality
+- [ ] Add TypeScript interfaces for all entities (`Program`, `Event`, `News`, etc.)
+- [ ] Provide proper `queryFn` in all `useQuery` hooks
+- [ ] Add `isLoading` and `error` states in all data queries
+- [ ] Use `queryClient.invalidateQueries()` after successful create/update/delete
+
+---
+
+## 🔁 4. Functional Improvements
+- [ ] Reuse `AddContentForms` for both adding and editing content
+- [ ] Pre-fill form fields in edit mode
+- [ ] Add `confirm()` before deletion for safety
+
+---
+
+## 🗂 5. Project Structure & Reusability
+- [ ] Break `AdminDashboard.tsx` into smaller components:
+  - `Tabs/Overview.tsx`
+  - `Tabs/Programs.tsx`
+  - `Tabs/News.tsx`
+  - etc.
+- [ ] Create reusable components:
+  - `ContentCard` (for each listed item)
+  - `EntityActions` (edit/delete buttons)
+  - `EmptyState` (for "no items found" message)
+
+---
+
+## ⚙ 6. Configuration & Env Management
+- [ ] Move hardcoded URLs/tokens to `.env` (e.g. `VITE_API_URL`)
+- [ ] Use Replit secrets for sensitive data like tokens, database URLs, etc.
+
+---
+
+## 🧪 7. Optional Enhancements (If Time Permits)
+- [ ] Add pagination or filters to long lists (e.g. `programs`)
+- [ ] Add search functionality (simple keyword filter)
+- [ ] Add role-based access control (e.g. only superadmin can delete)
+- [ ] Prepare a public API endpoint (e.g. `/api/public/programs`) for mobile integration
+
+---
+
+## ❗ Do Not:
+- ❌ Change visual styles or structure
+- ❌ Modify component layouts or UI components
+- ❌ Replace icons, tabs, or button designs
+
+---
+
+📩 If you’re unsure about any instruction, leave a comment in the code or use a `// TODO:` marker to raise questions for review.
+
+✅ FEDERAL POLYTECHNIC EDE WEBSITE – PROJECT TODO DOCUMENT
+⚙️ GENERAL INSTRUCTION:
+Maintain existing UI and visual structure.
+
+Use ShadCN components and follow the Tailwind layout already used.
+
+Do not alter layout or component organization.
+
+Use Wouter routing where necessary (e.g., useLocation() for navigation).
+
+1. ✅ Create "About" Page (/about)
+Navigation:
+
+Add "About" link to header and footer
+
+Content Sections:
+
+History – Summary of the institution's background
+
+Philosophy – The values that guide the polytechnic
+
+Objectives – Key goals of the institution
+
+Mission – Clear mission statement
+
+Vision – Long-term vision for the institution
+
+UI:
+
+Use consistent card or section components
+
+Structure content vertically or with Tabs if necessary
+
+2. ✅ Create "Application Form" Page (/application-form)
+Navigation:
+
+Add "Application Form" link to header and footer
+
+Content:
+
+Display available application types with titles and fees:
+
+ND FT – Full Time → ₦15,000
+
+ND PT – Evening Class → ₦15,000
+
+ND PT – Weekend Class → ₦15,000
+
+HND FT – Full Time
+
+Apply Buttons:
+
+Each program should have a styled button labeled "Apply Now"
+
+All buttons should link to the official portal:
+https://eportal.federalpolyede.edu.ng/apply/login.php
+
+UI Suggestion:
+
+Use cards or grid layout
+
+Each card = 1 program with title, fee, and button
+
+3. ✅ Add TETFUND Page (/tetfund)
+Navigation:
+
+Add "TETFUND" link to header and footer
+
+Content:
+
+Placeholder content describing TETFUND's role
+
+Can be static for now; optionally editable later
+
+4. ✅ Add New Menu: “Research”
+Navigation:
+
+Add new top-level menu item: Research
+
+Dropdown or Sub-items:
+
+Conference Website → [Insert actual link when available]
+
+Journal Website → [Insert actual link when available]
+
+These links should open in a new tab (target="_blank")
+
+5. ✅ Optional Enhancements (on request)
+If desired later, the following can be added:
+
+Make "About", "TETFUND", and "Application Form" pages editable from the admin dashboard
+
+Enable download of Application PDFs (optional)
+
+Add analytics tracking for external link clicks (via simple logging or integration)
+
+✅ Files/Pages to Create:
+Page	Route	Purpose
+about.tsx	/about	About the Institution
+application-form.tsx	/application-form	List of Application Options
+tetfund.tsx	/tetfund	Info about TETFUND projects
+also the institutional data ,tsx should have a button at the main page just after the KPI  that can be clicked and it opens 
