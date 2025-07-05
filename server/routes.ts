@@ -1,7 +1,7 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
-import { insertContactSchema } from "@shared/schema";
+import { insertContactSchema, insertEventSchema, insertManagementSchema } from "@shared/schema";
 import { z } from "zod";
 
 export async function registerRoutes(app: Express): Promise<Server> {
@@ -151,6 +151,32 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  app.get("/api/events/:id", async (req, res) => {
+    try {
+      const event = await storage.getEvent(parseInt(req.params.id));
+      if (!event) {
+        return res.status(404).json({ message: "Event not found" });
+      }
+      res.json(event);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to fetch event" });
+    }
+  });
+
+  app.post("/api/events", async (req, res) => {
+    try {
+      const eventData = insertEventSchema.parse(req.body);
+      const event = await storage.createEvent(eventData);
+      res.status(201).json(event);
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        res.status(400).json({ message: "Invalid event data", errors: error.errors });
+      } else {
+        res.status(500).json({ message: "Failed to create event" });
+      }
+    }
+  });
+
   // Management API
   app.get("/api/management", async (req, res) => {
     try {
@@ -158,6 +184,32 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json(management);
     } catch (error) {
       res.status(500).json({ message: "Failed to fetch management team" });
+    }
+  });
+
+  app.get("/api/management/:id", async (req, res) => {
+    try {
+      const member = await storage.getManagementMember(parseInt(req.params.id));
+      if (!member) {
+        return res.status(404).json({ message: "Management member not found" });
+      }
+      res.json(member);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to fetch management member" });
+    }
+  });
+
+  app.post("/api/management", async (req, res) => {
+    try {
+      const memberData = insertManagementSchema.parse(req.body);
+      const member = await storage.createManagementMember(memberData);
+      res.status(201).json(member);
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        res.status(400).json({ message: "Invalid management member data", errors: error.errors });
+      } else {
+        res.status(500).json({ message: "Failed to create management member" });
+      }
     }
   });
 

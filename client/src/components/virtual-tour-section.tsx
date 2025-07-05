@@ -1,6 +1,8 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { Play, MapPin, Clock, Users } from "lucide-react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Play, MapPin, Clock, Users, X } from "lucide-react";
+import { useState } from "react";
 
 const virtualTourSpots = [
   {
@@ -8,6 +10,7 @@ const virtualTourSpots = [
     title: "Engineering Workshop Complex",
     description: "State-of-the-art workshops equipped with modern machinery and tools for hands-on learning",
     image: "https://images.unsplash.com/photo-1581092162384-8987c1d64718?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&h=500",
+    videoUrl: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4",
     duration: "5 mins",
     highlights: ["CNC Machines", "3D Printing Lab", "Welding Stations"]
   },
@@ -16,6 +19,7 @@ const virtualTourSpots = [
     title: "Computer Science Laboratory",
     description: "Advanced computing facilities with latest software and hardware for programming and research",
     image: "https://images.unsplash.com/photo-1517077304055-6e89abbf09b0?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&h=500",
+    videoUrl: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4",
     duration: "4 mins",
     highlights: ["High-Performance Computers", "Server Room", "AI Research Lab"]
   },
@@ -24,6 +28,7 @@ const virtualTourSpots = [
     title: "Central Library & Digital Hub",
     description: "Modern library with extensive digital resources and collaborative study spaces",
     image: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&h=500",
+    videoUrl: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4",
     duration: "3 mins",
     highlights: ["Digital Archives", "Study Pods", "Research Center"]
   },
@@ -32,12 +37,26 @@ const virtualTourSpots = [
     title: "Student Life & Recreation",
     description: "Vibrant campus life with recreational facilities and student activity centers",
     image: "https://images.unsplash.com/photo-1523050854058-8df90110c9f1?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&h=500",
+    videoUrl: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerEscapes.mp4",
     duration: "6 mins",
     highlights: ["Sports Complex", "Student Union", "Cafeteria"]
   }
 ];
 
 export default function VirtualTourSection() {
+  const [selectedVideo, setSelectedVideo] = useState<any>(null);
+  const [isVideoDialogOpen, setIsVideoDialogOpen] = useState(false);
+
+  const handleVideoClick = (spot: any) => {
+    setSelectedVideo(spot);
+    setIsVideoDialogOpen(true);
+  };
+
+  const closeVideoDialog = () => {
+    setIsVideoDialogOpen(false);
+    setSelectedVideo(null);
+  };
+
   return (
     <section id="virtual-tour" className="py-20 bg-gradient-to-br from-poly-blue-100 to-white">
       <div className="container mx-auto px-4">
@@ -57,7 +76,7 @@ export default function VirtualTourSection() {
 
         <div className="grid md:grid-cols-2 gap-8 mb-12">
           {virtualTourSpots.map((spot) => (
-            <Card key={spot.id} className="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-shadow group cursor-pointer">
+            <Card key={spot.id} onClick={() => handleVideoClick(spot)} className="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-shadow group cursor-pointer">
               <div className="relative">
                 <div className="h-64 bg-cover bg-center" style={{ backgroundImage: `url(${spot.image})` }}>
                   <div className="absolute inset-0 bg-black bg-opacity-40 group-hover:bg-opacity-30 transition-all flex items-center justify-center">
@@ -110,6 +129,52 @@ export default function VirtualTourSection() {
             </div>
           </div>
         </div>
+
+        {/* Video Dialog */}
+        <Dialog open={isVideoDialogOpen} onOpenChange={setIsVideoDialogOpen}>
+          <DialogContent className="max-w-4xl w-[90vw] h-[90vh] p-0">
+            <DialogHeader className="p-6 pb-0">
+              <DialogTitle className="text-xl font-semibold">
+                {selectedVideo?.title}
+              </DialogTitle>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={closeVideoDialog}
+                className="absolute top-4 right-4"
+              >
+                <X className="h-4 w-4" />
+              </Button>
+            </DialogHeader>
+            <div className="p-6 pt-2 h-full">
+              {selectedVideo && (
+                <div className="w-full h-full">
+                  <video
+                    key={selectedVideo.id}
+                    className="w-full h-[70vh] rounded-lg"
+                    controls
+                    autoPlay
+                    preload="metadata"
+                    onError={(e) => console.error('Video error:', e)}
+                  >
+                    <source src={selectedVideo.videoUrl} type="video/mp4" />
+                    Your browser does not support the video tag.
+                  </video>
+                  <div className="mt-4">
+                    <p className="text-gray-600 mb-2">{selectedVideo.description}</p>
+                    <div className="flex flex-wrap gap-2">
+                      {selectedVideo.highlights?.map((highlight: string, index: number) => (
+                        <span key={index} className="bg-poly-green-100 text-poly-green-600 px-2 py-1 rounded text-xs font-medium">
+                          {highlight}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+          </DialogContent>
+        </Dialog>
       </div>
     </section>
   );

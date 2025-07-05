@@ -1,63 +1,48 @@
-import { useState } from 'react';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { z } from 'zod';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Checkbox } from '@/components/ui/checkbox';
-import { useToast } from '@/hooks/use-toast';
-import { Plus, X } from 'lucide-react';
+import { useState } from "react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Label } from "@/components/ui/label";
+import { Switch } from "@/components/ui/switch";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { apiRequest } from "@/lib/queryClient";
+import { useToast } from "@/hooks/use-toast";
+import { 
+  insertProgramSchema, 
+  insertNewsSchema, 
+  insertEventSchema, 
+  insertManagementSchema 
+} from "@shared/schema";
 
 // Form schemas
-const programSchema = z.object({
-  title: z.string().min(1, 'Title is required'),
-  description: z.string().min(1, 'Description is required'),
-  duration: z.string().min(1, 'Duration is required'),
-  category: z.string().min(1, 'Category is required'),
-  featured: z.boolean().default(false),
-  icon: z.string().min(1, 'Icon is required'),
-  color: z.string().min(1, 'Color is required'),
-  image: z.string().url('Must be a valid URL'),
+const programSchema = insertProgramSchema.extend({
+  featured: z.boolean().optional(),
 });
 
-const newsSchema = z.object({
-  title: z.string().min(1, 'Title is required'),
-  summary: z.string().min(1, 'Summary is required'),
-  content: z.string().min(1, 'Content is required'),
-  category: z.string().min(1, 'Category is required'),
-  featured: z.boolean().default(false),
-  image: z.string().url('Must be a valid URL'),
+const newsSchema = insertNewsSchema.extend({
+  featured: z.boolean().optional(),
 });
 
-const eventSchema = z.object({
-  title: z.string().min(1, 'Title is required'),
-  description: z.string().min(1, 'Description is required'),
-  date: z.string().min(1, 'Date is required'),
-  time: z.string().min(1, 'Time is required'),
-  location: z.string().min(1, 'Location is required'),
-  category: z.string().min(1, 'Category is required'),
-  featured: z.boolean().default(false),
-  image: z.string().url().optional(),
+const eventSchema = insertEventSchema.extend({
+  eventDate: z.string().min(1, "Event date is required"),
 });
 
-const managementSchema = z.object({
-  name: z.string().min(1, 'Name is required'),
-  position: z.string().min(1, 'Position is required'),
-  bio: z.string().min(1, 'Bio is required'),
-  image: z.string().url('Must be a valid URL'),
-  email: z.string().email().optional(),
-  linkedin: z.string().url().optional(),
+const managementSchema = insertManagementSchema.extend({
+  position: z.string().min(1, "Position is required"),
+  name: z.string().min(1, "Name is required"),
 });
 
 type ProgramFormData = z.infer<typeof programSchema>;
 type NewsFormData = z.infer<typeof newsSchema>;
 type EventFormData = z.infer<typeof eventSchema>;
 type ManagementFormData = z.infer<typeof managementSchema>;
+
+type FormData = ProgramFormData | NewsFormData | EventFormData | ManagementFormData;
 
 interface AddContentFormsProps {
   type: 'program' | 'news' | 'event' | 'management';
@@ -78,311 +63,382 @@ export default function AddContentForms({ type, onClose }: AddContentFormsProps)
     }
   };
 
-  const form = useForm({
+  const form = useForm<FormData>({
     resolver: zodResolver(getSchema()),
     defaultValues: {
       featured: false,
     },
   });
 
-  const createMutation = useMutation({
-    mutationFn: async (data: any) => {
-      const endpoint = `/api/${type === 'management' ? 'management' : `${type}s`}`;
-      const response = await fetch(endpoint, {
+  const mutation = useMutation({
+    mutationFn: async (data: FormData) => {
+      const endpoint = `/api/${type === 'management' ? 'management' : type + 's'}`;
+      return apiRequest(endpoint, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
         body: JSON.stringify(data),
       });
-
-      if (!response.ok) {
-        throw new Error(`Failed to create ${type}`);
-      }
-
-      return response.json();
     },
     onSuccess: () => {
-      const queryKey = type === 'management' ? '/api/management' : `/api/${type}s`;
-      queryClient.invalidateQueries({ queryKey: [queryKey] });
       toast({
-        title: 'Success',
-        description: `${type.charAt(0).toUpperCase() + type.slice(1)} created successfully!`,
+        title: "Success",
+        description: `${type.charAt(0).toUpperCase() + type.slice(1)} created successfully`,
       });
+      
+      // Invalidate related queries
+      const queries = [`/api/${type === 'management' ? 'management' : type + 's'}`];
+      if (type !== 'management') {
+        queries.push(`/api/${type}s/featured`);
+      }
+      
+      queries.forEach(query => {
+        queryClient.invalidateQueries({ queryKey: [query] });
+      });
+      
       onClose();
     },
     onError: (error: Error) => {
       toast({
-        title: 'Error',
-        description: error.message,
-        variant: 'destructive',
+        variant: "destructive",
+        title: "Error",
+        description: error.message || `Failed to create ${type}`,
       });
     },
   });
 
-  const onSubmit = (data: any) => {
-    if (type === 'event') {
-      data.date = new Date(data.date).toISOString();
-    }
-    createMutation.mutate(data);
+  const onSubmit = (data: FormData) => {
+    mutation.mutate(data);
+  };
+
+  const getErrorMessage = (fieldName: string) => {
+    const error = form.formState.errors[fieldName as keyof FormData];
+    return error?.message || '';
   };
 
   const renderProgramForm = () => (
-    <>
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div className="space-y-2">
-          <Label htmlFor="title">Program Title</Label>
-          <Input
-            id="title"
-            placeholder="e.g., Computer Engineering Technology"
-            {...form.register('title')}
-          />
-          {form.formState.errors.title && (
-            <p className="text-sm text-red-600">{form.formState.errors.title.message}</p>
-          )}
-        </div>
-
-        <div className="space-y-2">
-          <Label htmlFor="category">Category</Label>
-          <Select onValueChange={(value) => form.setValue('category', value)}>
-            <SelectTrigger>
-              <SelectValue placeholder="Select category" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="Engineering">Engineering</SelectItem>
-              <SelectItem value="Technology">Technology</SelectItem>
-              <SelectItem value="Business">Business</SelectItem>
-              <SelectItem value="Science">Science</SelectItem>
-              <SelectItem value="Arts">Arts</SelectItem>
-            </SelectContent>
-          </Select>
-          {form.formState.errors.category && (
-            <p className="text-sm text-red-600">{form.formState.errors.category.message}</p>
-          )}
-        </div>
+    <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+      <div className="space-y-2">
+        <Label htmlFor="title">Program Title</Label>
+        <Input
+          id="title"
+          placeholder="e.g., Computer Engineering Technology"
+          {...form.register('title')}
+        />
+        {getErrorMessage('title') && (
+          <p className="text-sm text-red-600">{getErrorMessage('title')}</p>
+        )}
       </div>
 
       <div className="space-y-2">
         <Label htmlFor="description">Description</Label>
         <Textarea
           id="description"
-          placeholder="Detailed program description..."
-          rows={4}
+          placeholder="Brief description of the program"
           {...form.register('description')}
         />
-        {form.formState.errors.description && (
-          <p className="text-sm text-red-600">{form.formState.errors.description.message}</p>
+        {getErrorMessage('description') && (
+          <p className="text-sm text-red-600">{getErrorMessage('description')}</p>
         )}
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div className="space-y-2">
-          <Label htmlFor="duration">Duration</Label>
-          <Input
-            id="duration"
-            placeholder="e.g., 2 Years"
-            {...form.register('duration')}
-          />
-          {form.formState.errors.duration && (
-            <p className="text-sm text-red-600">{form.formState.errors.duration.message}</p>
-          )}
-        </div>
-
-        <div className="space-y-2">
-          <Label htmlFor="icon">Icon</Label>
-          <Input
-            id="icon"
-            placeholder="e.g., 💻"
-            {...form.register('icon')}
-          />
-          {form.formState.errors.icon && (
-            <p className="text-sm text-red-600">{form.formState.errors.icon.message}</p>
-          )}
-        </div>
+      <div className="space-y-2">
+        <Label htmlFor="category">Category</Label>
+        <Input
+          id="category"
+          placeholder="e.g., Engineering, Business, Science"
+          {...form.register('category')}
+        />
+        {getErrorMessage('category') && (
+          <p className="text-sm text-red-600">{getErrorMessage('category')}</p>
+        )}
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div className="space-y-2">
-          <Label htmlFor="color">Color Gradient</Label>
-          <Select onValueChange={(value) => form.setValue('color', value)}>
-            <SelectTrigger>
-              <SelectValue placeholder="Select color" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="from-blue-500 to-blue-600">Blue</SelectItem>
-              <SelectItem value="from-green-500 to-green-600">Green</SelectItem>
-              <SelectItem value="from-red-500 to-red-600">Red</SelectItem>
-              <SelectItem value="from-purple-500 to-purple-600">Purple</SelectItem>
-              <SelectItem value="from-orange-500 to-orange-600">Orange</SelectItem>
-            </SelectContent>
-          </Select>
-          {form.formState.errors.color && (
-            <p className="text-sm text-red-600">{form.formState.errors.color.message}</p>
-          )}
-        </div>
-
-        <div className="space-y-2">
-          <Label htmlFor="image">Image URL</Label>
-          <Input
-            id="image"
-            placeholder="https://example.com/image.jpg"
-            {...form.register('image')}
-          />
-          {form.formState.errors.image && (
-            <p className="text-sm text-red-600">{form.formState.errors.image.message}</p>
-          )}
-        </div>
+      <div className="space-y-2">
+        <Label htmlFor="duration">Duration</Label>
+        <Input
+          id="duration"
+          placeholder="e.g., 2 Years, 3 Years"
+          {...form.register('duration')}
+        />
+        {getErrorMessage('duration') && (
+          <p className="text-sm text-red-600">{getErrorMessage('duration')}</p>
+        )}
       </div>
 
       <div className="flex items-center space-x-2">
-        <Checkbox
+        <Switch
           id="featured"
-          checked={form.watch('featured')}
-          onCheckedChange={(checked) => form.setValue('featured', checked as boolean)}
+          {...form.register('featured')}
         />
-        <Label htmlFor="featured">Feature this program</Label>
+        <Label htmlFor="featured">Featured Program</Label>
       </div>
-    </>
+
+      <div className="flex justify-end space-x-2">
+        <Button type="button" variant="outline" onClick={onClose}>
+          Cancel
+        </Button>
+        <Button type="submit" disabled={mutation.isPending}>
+          {mutation.isPending ? 'Creating...' : 'Create Program'}
+        </Button>
+      </div>
+    </form>
   );
 
   const renderNewsForm = () => (
-    <>
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div className="space-y-2">
-          <Label htmlFor="title">Article Title</Label>
-          <Input
-            id="title"
-            placeholder="e.g., Federal Polytechnic Ede Receives Major Grant"
-            {...form.register('title')}
-          />
-          {form.formState.errors.title && (
-            <p className="text-sm text-red-600">{form.formState.errors.title.message}</p>
-          )}
-        </div>
-
-        <div className="space-y-2">
-          <Label htmlFor="category">Category</Label>
-          <Select onValueChange={(value) => form.setValue('category', value)}>
-            <SelectTrigger>
-              <SelectValue placeholder="Select category" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="Infrastructure">Infrastructure</SelectItem>
-              <SelectItem value="Academic">Academic</SelectItem>
-              <SelectItem value="Research">Research</SelectItem>
-              <SelectItem value="Students">Students</SelectItem>
-              <SelectItem value="Announcement">Announcement</SelectItem>
-            </SelectContent>
-          </Select>
-          {form.formState.errors.category && (
-            <p className="text-sm text-red-600">{form.formState.errors.category.message}</p>
-          )}
-        </div>
+    <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+      <div className="space-y-2">
+        <Label htmlFor="title">News Title</Label>
+        <Input
+          id="title"
+          placeholder="Enter news headline"
+          {...form.register('title')}
+        />
+        {getErrorMessage('title') && (
+          <p className="text-sm text-red-600">{getErrorMessage('title')}</p>
+        )}
       </div>
 
       <div className="space-y-2">
         <Label htmlFor="summary">Summary</Label>
         <Textarea
           id="summary"
-          placeholder="Brief summary of the article..."
-          rows={2}
+          placeholder="Brief summary of the news"
           {...form.register('summary')}
         />
-        {form.formState.errors.summary && (
-          <p className="text-sm text-red-600">{form.formState.errors.summary.message}</p>
+        {getErrorMessage('summary') && (
+          <p className="text-sm text-red-600">{getErrorMessage('summary')}</p>
         )}
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor="content">Content</Label>
+        <Label htmlFor="content">Full Content</Label>
         <Textarea
           id="content"
-          placeholder="Full article content..."
+          placeholder="Full news article content"
           rows={6}
           {...form.register('content')}
         />
-        {form.formState.errors.content && (
-          <p className="text-sm text-red-600">{form.formState.errors.content.message}</p>
+        {getErrorMessage('content') && (
+          <p className="text-sm text-red-600">{getErrorMessage('content')}</p>
         )}
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor="image">Image URL</Label>
+        <Label htmlFor="category">Category</Label>
         <Input
-          id="image"
-          placeholder="https://example.com/image.jpg"
-          {...form.register('image')}
+          id="category"
+          placeholder="e.g., Academic, Infrastructure, Achievement"
+          {...form.register('category')}
         />
-        {form.formState.errors.image && (
-          <p className="text-sm text-red-600">{form.formState.errors.image.message}</p>
+        {getErrorMessage('category') && (
+          <p className="text-sm text-red-600">{getErrorMessage('category')}</p>
+        )}
+      </div>
+
+      <div className="space-y-2">
+        <Label htmlFor="imageUrl">Image URL</Label>
+        <Input
+          id="imageUrl"
+          placeholder="https://example.com/image.jpg"
+          {...form.register('imageUrl')}
+        />
+        {getErrorMessage('imageUrl') && (
+          <p className="text-sm text-red-600">{getErrorMessage('imageUrl')}</p>
         )}
       </div>
 
       <div className="flex items-center space-x-2">
-        <Checkbox
+        <Switch
           id="featured"
-          checked={form.watch('featured')}
-          onCheckedChange={(checked) => form.setValue('featured', checked as boolean)}
+          {...form.register('featured')}
         />
-        <Label htmlFor="featured">Feature this article</Label>
+        <Label htmlFor="featured">Featured News</Label>
       </div>
-    </>
+
+      <div className="flex justify-end space-x-2">
+        <Button type="button" variant="outline" onClick={onClose}>
+          Cancel
+        </Button>
+        <Button type="submit" disabled={mutation.isPending}>
+          {mutation.isPending ? 'Creating...' : 'Create News'}
+        </Button>
+      </div>
+    </form>
+  );
+
+  const renderEventForm = () => (
+    <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+      <div className="space-y-2">
+        <Label htmlFor="title">Event Title</Label>
+        <Input
+          id="title"
+          placeholder="Enter event name"
+          {...form.register('title')}
+        />
+        {getErrorMessage('title') && (
+          <p className="text-sm text-red-600">{getErrorMessage('title')}</p>
+        )}
+      </div>
+
+      <div className="space-y-2">
+        <Label htmlFor="description">Description</Label>
+        <Textarea
+          id="description"
+          placeholder="Event description"
+          {...form.register('description')}
+        />
+        {getErrorMessage('description') && (
+          <p className="text-sm text-red-600">{getErrorMessage('description')}</p>
+        )}
+      </div>
+
+      <div className="space-y-2">
+        <Label htmlFor="eventDate">Event Date</Label>
+        <Input
+          id="eventDate"
+          type="datetime-local"
+          {...form.register('eventDate')}
+        />
+        {getErrorMessage('eventDate') && (
+          <p className="text-sm text-red-600">{getErrorMessage('eventDate')}</p>
+        )}
+      </div>
+
+      <div className="space-y-2">
+        <Label htmlFor="location">Location</Label>
+        <Input
+          id="location"
+          placeholder="Event venue"
+          {...form.register('location')}
+        />
+        {getErrorMessage('location') && (
+          <p className="text-sm text-red-600">{getErrorMessage('location')}</p>
+        )}
+      </div>
+
+      <div className="space-y-2">
+        <Label htmlFor="category">Category</Label>
+        <Input
+          id="category"
+          placeholder="e.g., Academic, Cultural, Sports"
+          {...form.register('category')}
+        />
+        {getErrorMessage('category') && (
+          <p className="text-sm text-red-600">{getErrorMessage('category')}</p>
+        )}
+      </div>
+
+      <div className="flex justify-end space-x-2">
+        <Button type="button" variant="outline" onClick={onClose}>
+          Cancel
+        </Button>
+        <Button type="submit" disabled={mutation.isPending}>
+          {mutation.isPending ? 'Creating...' : 'Create Event'}
+        </Button>
+      </div>
+    </form>
+  );
+
+  const renderManagementForm = () => (
+    <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+      <div className="space-y-2">
+        <Label htmlFor="name">Full Name</Label>
+        <Input
+          id="name"
+          placeholder="Enter full name"
+          {...form.register('name')}
+        />
+        {getErrorMessage('name') && (
+          <p className="text-sm text-red-600">{getErrorMessage('name')}</p>
+        )}
+      </div>
+
+      <div className="space-y-2">
+        <Label htmlFor="position">Position</Label>
+        <Input
+          id="position"
+          placeholder="e.g., Rector, Deputy Rector"
+          {...form.register('position')}
+        />
+        {getErrorMessage('position') && (
+          <p className="text-sm text-red-600">{getErrorMessage('position')}</p>
+        )}
+      </div>
+
+      <div className="space-y-2">
+        <Label htmlFor="bio">Biography</Label>
+        <Textarea
+          id="bio"
+          placeholder="Brief biography and qualifications"
+          rows={4}
+          {...form.register('bio')}
+        />
+        {getErrorMessage('bio') && (
+          <p className="text-sm text-red-600">{getErrorMessage('bio')}</p>
+        )}
+      </div>
+
+      <div className="space-y-2">
+        <Label htmlFor="imageUrl">Profile Image URL</Label>
+        <Input
+          id="imageUrl"
+          placeholder="https://example.com/profile.jpg"
+          {...form.register('imageUrl')}
+        />
+        {getErrorMessage('imageUrl') && (
+          <p className="text-sm text-red-600">{getErrorMessage('imageUrl')}</p>
+        )}
+      </div>
+
+      <div className="space-y-2">
+        <Label htmlFor="department">Department</Label>
+        <Input
+          id="department"
+          placeholder="e.g., Administration, Academic Affairs"
+          {...form.register('department')}
+        />
+        {getErrorMessage('department') && (
+          <p className="text-sm text-red-600">{getErrorMessage('department')}</p>
+        )}
+      </div>
+
+      <div className="flex justify-end space-x-2">
+        <Button type="button" variant="outline" onClick={onClose}>
+          Cancel
+        </Button>
+        <Button type="submit" disabled={mutation.isPending}>
+          {mutation.isPending ? 'Creating...' : 'Create Management Member'}
+        </Button>
+      </div>
+    </form>
   );
 
   const getTitle = () => {
     switch (type) {
       case 'program': return 'Add New Program';
       case 'news': return 'Add News Article';
-      case 'event': return 'Create Event';
-      case 'management': return 'Add Team Member';
+      case 'event': return 'Add Event';
+      case 'management': return 'Add Management Member';
       default: return 'Add Content';
     }
   };
 
+  const renderForm = () => {
+    switch (type) {
+      case 'program': return renderProgramForm();
+      case 'news': return renderNewsForm();
+      case 'event': return renderEventForm();
+      case 'management': return renderManagementForm();
+      default: return null;
+    }
+  };
+
   return (
-    <Card className="w-full max-w-4xl mx-auto">
-      <CardHeader>
-        <div className="flex items-center justify-between">
-          <div>
-            <CardTitle>{getTitle()}</CardTitle>
-            <CardDescription>
-              Fill in the details below to add new content to the website
-            </CardDescription>
-          </div>
-          <Button variant="outline" size="sm" onClick={onClose}>
-            <X className="w-4 h-4" />
-          </Button>
-        </div>
-      </CardHeader>
-      <CardContent>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-          {type === 'program' && renderProgramForm()}
-          {type === 'news' && renderNewsForm()}
-          
-          <div className="flex justify-end space-x-4">
-            <Button type="button" variant="outline" onClick={onClose}>
-              Cancel
-            </Button>
-            <Button 
-              type="submit" 
-              disabled={createMutation.isPending}
-              className="bg-gradient-to-r from-blue-600 to-green-600 hover:from-blue-700 hover:to-green-700"
-            >
-              {createMutation.isPending ? (
-                <div className="flex items-center space-x-2">
-                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
-                  <span>Creating...</span>
-                </div>
-              ) : (
-                <>
-                  <Plus className="w-4 h-4 mr-2" />
-                  Create {type.charAt(0).toUpperCase() + type.slice(1)}
-                </>
-              )}
-            </Button>
-          </div>
-        </form>
-      </CardContent>
-    </Card>
+    <div className="max-w-2xl mx-auto">
+      <div className="mb-6">
+        <h2 className="text-2xl font-bold text-gray-900">{getTitle()}</h2>
+        <p className="text-gray-600 mt-1">Fill out the form below to add new content.</p>
+      </div>
+      {renderForm()}
+    </div>
   );
 }

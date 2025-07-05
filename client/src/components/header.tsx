@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { GraduationCap, Menu, X, ChevronDown, ExternalLink } from "lucide-react";
+import FPELogo from "./fpe-logo";
 import { Button } from "@/components/ui/button";
 import { scrollToSection } from "@/lib/utils";
 import { Link, useLocation } from "wouter";
@@ -41,8 +42,8 @@ export default function Header() {
       <nav className="container mx-auto px-4 py-4">
         <div className="flex justify-between items-center">
           <div className="flex items-center space-x-3">
-            <div className="w-12 h-12 bg-poly-blue-600 rounded-full flex items-center justify-center">
-              <GraduationCap className="text-white text-2xl" />
+            <div className="w-12 h-12 flex items-center justify-center">
+              <FPELogo size={48} />
             </div>
             <div>
               <h1 className="font-inter font-bold text-xl text-gray-800">The Federal Polytechnic Ede</h1>

@@ -139,9 +139,12 @@ export default function InstitutionalDataSection() {
           </div>
           
           <div className="text-center mt-8">
-            <Link href="/institutional-data">
+            <p className="text-gray-600 mb-4">
+              Click below to view detailed information about the institution.
+            </p>
+            <Link href="/institution-data">
               <Button className="bg-polytechnic-blue hover:bg-polytechnic-green transition-colors">
-                View Detailed Performance Report
+                View Institution Data
                 <ExternalLink className="ml-2 h-4 w-4" />
               </Button>
             </Link>
