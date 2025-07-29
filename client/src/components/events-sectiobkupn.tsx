@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Clock, MapPin } from "lucide-react";
-import { getCategoryColor } from "@/lib/utils";
+import { formatDate, getCategoryColor } from "@/lib/utils";
 import type { Event } from "@shared/schema";
 
 export default function EventsSection() {
@@ -14,11 +14,15 @@ export default function EventsSection() {
   if (isLoading) {
     return (
       <section id="events" className="py-20 bg-white">
-        <div className="container mx-auto px-4 text-center">
-          <h2 className="font-inter font-bold text-4xl lg:text-5xl text-gray-800 mb-6">
-            Upcoming Events
-          </h2>
-          <p className="text-xl text-gray-600">Loading events...</p>
+        <div className="container mx-auto px-4">
+          <div className="text-center mb-16">
+            <h2 className="font-inter font-bold text-4xl lg:text-5xl text-gray-800 mb-6">
+              Upcoming Events
+            </h2>
+            <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+              Loading events...
+            </p>
+          </div>
         </div>
       </section>
     );
@@ -35,23 +39,14 @@ export default function EventsSection() {
             Stay updated with the latest events, seminars, and activities happening at our institution.
           </p>
         </div>
-
+        
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
           {events?.map((event) => {
             const eventDate = new Date(event.date);
             const color = getCategoryColor(event.category);
-
+            
             return (
               <Card key={event.id} className="bg-white border border-gray-200 rounded-xl overflow-hidden hover:shadow-lg transition-shadow">
-                
-                {event.image && (
-                  <img
-                    src={event.image}
-                    alt={event.title}
-                    className="w-full h-48 object-cover"
-                  />
-                )}
-
                 <CardContent className="p-6">
                   <div className="flex items-center justify-between mb-4">
                     <Badge 
@@ -63,7 +58,6 @@ export default function EventsSection() {
                     >
                       {event.featured ? 'Featured Event' : event.category}
                     </Badge>
-
                     <div className="text-center">
                       <div className={`text-2xl font-bold ${
                         event.featured 
@@ -77,12 +71,10 @@ export default function EventsSection() {
                       </div>
                     </div>
                   </div>
-
-                  <h3 className="font-poppins font-semibold text-xl text-gray-800 mb-3">
-                    {event.title}
-                  </h3>
+                  
+                  <h3 className="font-poppins font-semibold text-xl text-gray-800 mb-3">{event.title}</h3>
                   <p className="text-gray-600 mb-4">{event.description}</p>
-
+                  
                   <div className="space-y-2">
                     <div className="flex items-center text-sm text-gray-500">
                       <Clock className="mr-2 h-4 w-4" />
@@ -93,7 +85,7 @@ export default function EventsSection() {
                       <span>{event.location}</span>
                     </div>
                   </div>
-
+                  
                   <div className="mt-4">
                     <Button 
                       className={`w-full py-2 px-4 font-medium transition-colors ${
@@ -103,9 +95,9 @@ export default function EventsSection() {
                       }`}
                     >
                       {event.category === 'Workshop' ? 'Register' : 
-                      event.category === 'Cultural' ? 'Get Tickets' :
-                      event.category === 'Sports' ? 'View Schedule' :
-                      'Register Now'}
+                       event.category === 'Cultural' ? 'Get Tickets' :
+                       event.category === 'Sports' ? 'View Schedule' :
+                       'Register Now'}
                     </Button>
                   </div>
                 </CardContent>
@@ -113,7 +105,7 @@ export default function EventsSection() {
             );
           })}
         </div>
-
+        
         <div className="text-center mt-12">
           <Button className="bg-poly-blue-600 hover:bg-poly-blue-500 text-white px-8 py-4 font-semibold">
             View All Events
